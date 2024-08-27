@@ -6,8 +6,8 @@ import jwt # type: ignore
 
 from pydantic import ValidationError # type: ignore
 
-from RubHew.RubHew.models.user import *
-from RubHew.models import AsyncSession ,get_session
+from models.user import *
+from models import AsyncSession ,get_session
 from security import *
 from config import  *
 
