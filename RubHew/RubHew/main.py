@@ -1,30 +1,33 @@
-# main.py
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
+# ssl patch
+from gevent import monkey
 
-from config import *
-from models import *
-from router import *
+monkey.patch_all()
+
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from . import config
+from . import models
+from . import routers
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    if engine is not None:
+    if models.engine is not None:
         # Close the DB connection
-        await close_session()
+        await models.close_session()
 
 
 def create_app(settings=None):
     if not settings:
-        settings = get_settings()
+        settings = config.get_settings()
 
     app = FastAPI(lifespan=lifespan)
 
-    init_db(settings)
+    models.init_db(settings)
 
-    init_router(app)
-
+    routers.init_router(app)
     return app
 
 
-app = create_app()

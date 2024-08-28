@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.get("/")
 async def index() -> dict:
-    return dict(message="Digital Wallet API")
+    return dict(message="RubHew API")

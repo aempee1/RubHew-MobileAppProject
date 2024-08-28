@@ -1,0 +1,3 @@
+#!/bin/bash
+
+uvicorn "RubHew.main:create_app" --factory --reload

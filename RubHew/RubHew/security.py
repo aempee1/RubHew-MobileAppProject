@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 from typing import Any, Union
 
-import jwt # type: ignore
+import jwt
 
-from config import get_settings
+from . import config
 
 
 ALGORITHM = "HS256"
 
-settings = get_settings()
+settings = config.get_settings()
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

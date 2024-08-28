@@ -1,17 +1,13 @@
-from typing import AsyncIterator, Optional
+from typing import Optional, AsyncIterator
 
-from sqlmodel import Field, SQLModel, create_engine, Session, select # type: ignore
-from sqlmodel.ext.asyncio.session import AsyncSession # type: ignore
+from sqlmodel import Field, SQLModel, create_engine, Session, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from sqlalchemy.ext.asyncio import create_async_engine # type: ignore
-from sqlalchemy.orm import sessionmaker # type: ignore
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
 
-
-from . import user
-
-
-
-
+from . import users
+from .users import *
 
 
 connect_args = {}
