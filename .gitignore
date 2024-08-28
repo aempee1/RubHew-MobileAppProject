@@ -1,7 +1,48 @@
-v1
-.venv
-venv
-__pycache__
+# Ignore virtual environment directories
+.venv/
+venv/
+v1/
+
+# Ignore Python cache and compiled files
+__pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Ignore environment variable files
 .env
-.pytest_cache
+.env.*
+
+# Ignore pytest cache
+.pytest_cache/
+.cache/
+
+# Ignore test database files
+test.db
+*.sqlite3
+
+# Ignore IDE and editor specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Ignore FastAPI logs
+*.log
+*.out
+
+# Ignore FastAPI generated static files
+/static/
+
+# Ignore FastAPI Alembic migrations
+migrations/
+alembic/
+
+# Ignore build and distribution directories
+build/
+dist/
+*.egg-info/
