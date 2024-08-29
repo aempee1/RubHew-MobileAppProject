@@ -26,10 +26,15 @@ def init_db(settings):
     )
 
 
+
 async def recreate_table():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.drop_all)
-        await conn.run_sync(SQLModel.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.drop_all)
+            await conn.run_sync(SQLModel.metadata.create_all)
+    except Exception as e:
+        print(f"Error creating tables: {e}")
+
 
 
 async def get_session() -> AsyncIterator[AsyncSession]:

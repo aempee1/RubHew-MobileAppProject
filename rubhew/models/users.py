@@ -86,7 +86,7 @@ class ChangedPasswordUser(BaseModel):
 class DBUser(BaseUser, SQLModel, table=True):
     __tablename__ = "users"
     id: int | None = Field(default=None, primary_key=True)
-    
+
     password: str
     roles: List[str] = Field(default_factory=list, sa_column=Column(JSON))  # Use JSON to store roles
 

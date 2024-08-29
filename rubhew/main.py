@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from . import config
 from . import models
+
 from . import routers
 
 
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
     yield
     if models.engine is not None:
         # Close the DB connection
-        await models.close_session()
+        await models.sesion_close()
 
 
 def create_app(settings=None):
@@ -29,5 +30,3 @@ def create_app(settings=None):
 
     routers.init_router(app)
     return app
-
-
