@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "rubhew"
+name = "RubHew"
 version = "0.1.0"
 description = "rubhew mobile app backend project"
 authors = ["Iffahan Suksuwan <iffahan.suksuwan@gmail.com>"]
