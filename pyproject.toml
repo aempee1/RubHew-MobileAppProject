@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "RubHew"
+name = "rubhew"
 version = "0.1.0"
-description = "rubhew mobile app backend project"
-authors = ["Iffahan Suksuwan <iffahan.suksuwan@gmail.com>"]
+description = ""
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -23,6 +23,7 @@ httpx = "^0.27.0"
 aiosqlite = "^0.20.0"
 pytest-asyncio = "^0.23.8"
 locust = "^2.31.2"
+
 
 [build-system]
 requires = ["poetry-core"]
