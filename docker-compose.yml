@@ -2,7 +2,7 @@ version: "3.8"
 services:
   db:
     image: postgres
-    container_name: local_pgdb_RubHew
+    container_name: local_pgdb_rubhew
     restart: always
     ports:
       - "5432:5432"
@@ -13,7 +13,7 @@ services:
       - local_pgdata:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin4_container_RubHew
+    container_name: pgadmin4_container_rubhew
     restart: always
     ports:
       - "8888:80"
