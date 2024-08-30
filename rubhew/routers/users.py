@@ -69,6 +69,7 @@ async def create_user(
 @router.post("/createsuper", response_model=models.User)
 async def create_user(
     user_info: models.RegisterSuperUser,
+    profile_info: models.CreateProfileModel,
     session: Annotated[AsyncSession, Depends(models.get_session)],
 ) -> models.RegisterSuperUser:
     existing_user = await session.exec(
@@ -85,6 +86,10 @@ async def create_user(
     session.add(user)
     await session.commit()
     await session.refresh(user)
+
+    profile = models.DBProfile(user_id=user.id)
+    session.add(profile)
+    await session.commit()
 
     return user
 

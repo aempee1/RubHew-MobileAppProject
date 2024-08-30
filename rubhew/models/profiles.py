@@ -17,7 +17,6 @@ class ProfileModel(BaseModel):
     address: str | None = None
     birthday: str | None = None
     phoneNumber: str | None = None
-    role: str | None = None
     user_id : int | None = 0
 
 class CreateProfileModel(BaseModel):
@@ -26,7 +25,6 @@ class CreateProfileModel(BaseModel):
     address: str | None = None
     birthday: str | None = None
     phoneNumber: str | None = None
-    role: str | None = None
 
 class UpdateProfileModel(ProfileModel):
     pass
