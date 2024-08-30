@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
@@ -59,15 +60,40 @@ async def create_user(
     await session.commit()
     await session.refresh(user)
 
+    profile = models.DBProfile(user_id=user.id)
+    session.add(profile)
+    await session.commit()
+
     return user
 
+@router.post("/createsuper", response_model=models.User)
+async def create_user(
+    user_info: models.RegisterSuperUser,
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+) -> models.RegisterSuperUser:
+    existing_user = await session.exec(
+        select(models.DBUser).where(models.DBUser.username == user_info.username)
+    )
+    if existing_user.one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Username already exists.",
+        )
 
-@router.put("/update", response_model=models.User)
+    user = models.DBUser.from_orm(user_info)
+    await user.set_password(user_info.password)
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
+    return user
+
+@router.put("/update")
 async def update_user(
-    user_update: models.UpdatedUser,
+    user_update: models.UpdateUser,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_user),
-) -> models.User:
+) ->JSONResponse :
     if not current_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -81,7 +107,7 @@ async def update_user(
     await session.commit()
     await session.refresh(current_user)
 
-    return current_user
+    return {"message" : "Update is Successful"}
 
 
 @router.put("/change_password")
@@ -122,13 +148,13 @@ async def delete_user(
     return {"message": "User deleted successfully"}
 
 
-@router.put("/{user_id}/role", response_model=models.User)
+@router.put("/{user_id}/updaterole")
 async def update_user_role(
     user_id: int,
     new_role: str,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_active_superuser),  # Only admin can update roles
-) -> models.User:
+) :
     user = await session.get(models.DBUser, user_id)
     if not user:
         raise HTTPException(
@@ -141,4 +167,4 @@ async def update_user_role(
     await session.commit()
     await session.refresh(user)
 
-    return user
+    return {"message" : "Update Role is Successful"}

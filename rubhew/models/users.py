@@ -18,6 +18,12 @@ class BaseUser(BaseModel):
     last_name: str = pydantic.Field(example="Lastname")
 
 
+class UpdateUser(BaseModel):
+
+    email: str = pydantic.Field(example="admin@email.local")
+    first_name: str = pydantic.Field(example="Firstname")
+    last_name: str = pydantic.Field(example="Lastname")
+
 class User(BaseUser):
     id: int
     last_login_date: datetime.datetime | None = pydantic.Field(
@@ -58,9 +64,12 @@ class ResetedPassword(BaseModel):
 class RegisteredUser(BaseUser):
     password: str = pydantic.Field(example="password")
 
+class RegisterSuperUser(RegisteredUser):
+    role: str = pydantic.Field(example="admin")
 
-class UpdatedUser(BaseUser):
-    role: str = pydantic.Field(example="admin")  # Change roles to a single string
+# class UpdatedUser(BaseUser):
+#     pass
+#     # role: str = pydantic.Field(example="admin")  
 
 
 class Token(BaseModel):
