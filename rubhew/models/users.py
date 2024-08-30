@@ -98,8 +98,7 @@ class DBUser(BaseUser, SQLModel, table=True):
 
     password: str
     role: str = Field(default="user", sa_column=Column(String))  # Change roles to a single string
-    
-    items: List["Item"] = Relationship(back_populates="user")
+    items: List["Item"] = Relationship(back_populates="user") # type: ignore
 
 
     register_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
