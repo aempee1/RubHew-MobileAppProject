@@ -1,10 +1,9 @@
 import datetime
 import pydantic
 from pydantic import BaseModel, EmailStr, ConfigDict
-from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import JSON
-from typing import List, Optional
+from sqlmodel import SQLModel, Field
+from sqlalchemy import Column, String
+from typing import Optional
 
 from passlib.context import CryptContext
 
@@ -61,7 +60,7 @@ class RegisteredUser(BaseUser):
 
 
 class UpdatedUser(BaseUser):
-    roles: list[str] = pydantic.Field(default_factory=list)  # Add roles to UpdatedUser
+    role: str = pydantic.Field(example="admin")  # Change roles to a single string
 
 
 class Token(BaseModel):
@@ -88,14 +87,14 @@ class DBUser(BaseUser, SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     password: str
-    roles: List[str] = Field(default_factory=list, sa_column=Column(JSON))  # Use JSON to store roles
+    role: str = Field(default="user", sa_column=Column(String))  # Change roles to a single string
 
     register_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     updated_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     last_login_date: datetime.datetime | None = Field(default=None)
 
-    async def has_roles(self, roles: List[str]) -> bool:
-        return any(role in self.roles for role in roles)
+    async def has_role(self, role: str) -> bool:
+        return self.role == role
 
     async def set_password(self, plain_password: str):
         self.password = pwd_context.hash(plain_password)

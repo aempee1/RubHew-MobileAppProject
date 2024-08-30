@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, logger, status, Path, Query
+from fastapi import Depends, HTTPException, logger, status
 from fastapi.security import OAuth2PasswordBearer
 
 import typing
@@ -56,7 +56,7 @@ async def get_current_active_user(
 async def get_current_active_superuser(
     current_user: typing.Annotated[models.User, Depends(get_current_user)],
 ) -> models.User:
-    if "admin" not in current_user.roles:
+    if current_user.role != "admin":  # Change to check the single role string
         raise HTTPException(
             status_code=400, detail="The user doesn't have enough privileges"
         )
@@ -64,15 +64,14 @@ async def get_current_active_superuser(
 
 
 class RoleChecker:
-    def __init__(self, *allowed_roles: list[str]):
+    def __init__(self, *allowed_roles: str):  # No need for list[str] since we're using strings
         self.allowed_roles = allowed_roles
 
     def __call__(
         self,
         user: typing.Annotated[models.User, Depends(get_current_active_user)],
     ):
-        for role in user.roles:
-            if role in self.allowed_roles:
-                return
-        logger.debug(f"User with role {user.roles} not in {self.allowed_roles}")
+        if user.role in self.allowed_roles:  # Check if the user's single role matches allowed roles
+            return
+        logger.debug(f"User with role {user.role} not in {self.allowed_roles}")
         raise HTTPException(status_code=403, detail="Role not permitted")
