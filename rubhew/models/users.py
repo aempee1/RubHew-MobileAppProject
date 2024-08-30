@@ -1,9 +1,10 @@
 import datetime
 import pydantic
 from pydantic import BaseModel, EmailStr, ConfigDict
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, String
-from typing import Optional
+from typing import Optional, List
+
 
 from passlib.context import CryptContext
 
@@ -97,6 +98,9 @@ class DBUser(BaseUser, SQLModel, table=True):
 
     password: str
     role: str = Field(default="user", sa_column=Column(String))  # Change roles to a single string
+    
+    items: List["Item"] = Relationship(back_populates="user")
+
 
     register_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
     updated_date: datetime.datetime = Field(default_factory=datetime.datetime.now)

@@ -8,10 +8,12 @@ from sqlalchemy.orm import sessionmaker
 
 from . import users
 from . import profiles
+from . import items
 
 
 from .users import *
 from .profiles import *
+from .items import *
 
 connect_args = {}
 
