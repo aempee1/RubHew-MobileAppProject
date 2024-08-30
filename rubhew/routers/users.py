@@ -20,7 +20,7 @@ def get_me(current_user: models.User = Depends(deps.get_current_user)) -> models
 async def get_user(
     user_id: int,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.User = Depends(deps.get_current_user),
+    current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> models.User:
     user = await session.get(models.DBUser, user_id)
     if not user:
@@ -71,7 +71,15 @@ async def create_user(
     user_info: models.RegisterSuperUser,
     profile_info: models.CreateProfileModel,
     session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.User = Depends(deps.get_current_active_superuser)
 ) -> models.RegisterSuperUser:
+    
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can create a superuser.",
+        )
+
     existing_user = await session.exec(
         select(models.DBUser).where(models.DBUser.username == user_info.username)
     )
@@ -87,7 +95,8 @@ async def create_user(
     await session.commit()
     await session.refresh(user)
 
-    profile = models.DBProfile(user_id=user.id)
+    profile = models.DBProfile.from_orm(profile_info)
+    profile.user_id = user.id
     session.add(profile)
     await session.commit()
 

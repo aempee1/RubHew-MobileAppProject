@@ -5,7 +5,7 @@ from typing import Optional , Annotated
 from sqlmodel import Field , SQLModel , Session , select , func
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-import math
+import math 
 
 from .. import models
 from .. import deps
@@ -21,6 +21,6 @@ async def get_user_profile(
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="admin doesn't has a profile",
+            detail="User not found",
         )
     return profile
