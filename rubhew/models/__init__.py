@@ -9,11 +9,12 @@ from sqlalchemy.orm import sessionmaker
 from . import users
 from . import profiles
 from . import items
-
+from . import transactions
 
 from .users import *
 from .profiles import *
 from .items import *
+from .transactions import *
 
 connect_args = {}
 
