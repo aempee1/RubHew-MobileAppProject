@@ -73,7 +73,7 @@ async def create_user(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_active_superuser)
 ) -> models.RegisterSuperUser:
-    
+
     if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -107,7 +107,7 @@ async def update_user(
     user_update: models.UpdateUser,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.User = Depends(deps.get_current_user),
-) ->JSONResponse :
+) :
     if not current_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -147,7 +147,7 @@ async def change_password(
 async def delete_user(
     user_id: int,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.User = Depends(deps.get_current_active_superuser),  # Only admin can delete users
+    current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> dict:
     user = await session.get(models.DBUser, user_id)
     if not user:
@@ -167,7 +167,7 @@ async def update_user_role(
     user_id: int,
     new_role: str,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.User = Depends(deps.get_current_active_superuser),  # Only admin can update roles
+    current_user: models.User = Depends(deps.get_current_active_superuser), 
 ) :
     user = await session.get(models.DBUser, user_id)
     if not user:
