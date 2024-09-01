@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
+from typing import Optional, List
 import datetime
+from sqlalchemy.orm import relationship
+
 
 class ItemBase(SQLModel):
     name_item: str = Field(index=True)
@@ -18,6 +20,7 @@ class Item(ItemBase, table=True):
     
     # Establish relationship to User model
     user: Optional["DBUser"] = Relationship(back_populates="items") # type: ignore
+    transactions: List["Transaction"] = Relationship(back_populates="item") # type: ignore
 
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)

@@ -1,38 +1,39 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
-import datetime
+from sqlalchemy.orm import relationship
+from typing import Optional, List
+from datetime import datetime
+
 
 class TransactionBase(SQLModel):
     price: float
     address: str
     receipt: str  # Base64 encoded image
-    date_time: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
-    status: str = Field(default="ยืนยันการโอน")  # Default status
+    create_time: datetime = Field(default_factory=datetime.utcnow)
+    update_time: datetime = Field(default_factory=datetime.utcnow)
+    status: str = Field(default="Waiting")  # Default status
+
 
 class Transaction(TransactionBase, table=True):
     __tablename__ = "transactions"
 
-    id_transaction: Optional[int] = Field(default=None, primary_key=True)
-    
-    # Seller relationship
-    id_user_seller: Optional[int] = Field(foreign_key="users.id", nullable=False)
-    seller: Optional["DBUser"] = Relationship(back_populates="seller_transactions", sa_relationship_kwargs={"lazy": "selectin"})
+    id_transaction: int = Field(default=None, primary_key=True)
+    id_item: int = Field(foreign_key="items.id_item")
+    id_user_customer: int = Field(foreign_key="users.id")
 
-    # Customer relationship
-    id_user_customer: Optional[int] = Field(foreign_key="users.id", nullable=False)
-    customer: Optional["DBUser"] = Relationship(back_populates="customer_transactions", sa_relationship_kwargs={"lazy": "selectin"})
+    # Correctly annotated relationships
+    item: Optional["Item"] = Relationship(back_populates="transactions")
+    user_customer: Optional["DBUser"] = Relationship(back_populates="transactions")
 
 
 class TransactionCreate(TransactionBase):
-    id_user_seller: int
+    id_item: int
     id_user_customer: int
 
 
 class TransactionRead(TransactionBase):
     id_transaction: int
-    id_user_seller: int
+    id_item: int
     id_user_customer: int
-    date_time: datetime.datetime
 
 
 class TransactionUpdate(SQLModel):

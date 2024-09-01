@@ -103,6 +103,7 @@ class DBUser(BaseUser, SQLModel, table=True):
     role: str = Field(default="user", sa_column=Column(String))  # Change roles to a single string
     status : bool = Field(default=False ,sa_column=Column(Boolean))
     items: List["Item"] = Relationship(back_populates="user") # type: ignore
+    transactions: List["Transaction"] = Relationship(back_populates="user_customer") # type: ignore
 
 
     register_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
