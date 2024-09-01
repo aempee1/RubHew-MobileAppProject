@@ -124,6 +124,30 @@ async def update_user(
     return {"message" : "Update is Successful"}
 
 
+
+@router.put("/changestatus/{user_id}")
+async def change_status(
+    user_id : int , 
+    status : bool ,
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.User = Depends(deps.get_current_active_superuser)
+) -> models.SuperUserUpdateStatus :
+    user = await session.get(models.DBUser, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    user.status = status
+    session.add(user)
+    await session.commit()
+    await session.refresh(user)
+
+    return user
+
+
+
+
 @router.put("/change_password")
 async def change_password(
     password_update: models.ChangedPassword,
@@ -150,13 +174,14 @@ async def delete_user(
     current_user: models.User = Depends(deps.get_current_active_superuser),
 ) -> dict:
     user = await session.get(models.DBUser, user_id)
+    profile = await session.get(models.DBProfile, user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-
     await session.delete(user)
+    await session.delete(profile)
     await session.commit()
 
     return {"message": "User deleted successfully"}

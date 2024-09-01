@@ -2,7 +2,7 @@ import datetime
 import pydantic
 from pydantic import BaseModel, EmailStr, ConfigDict
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String , Boolean
 from typing import Optional, List
 
 
@@ -12,6 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class BaseUser(BaseModel):
+
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     email: str = pydantic.Field(example="admin@email.local")
     username: str = pydantic.Field(example="admin")
@@ -68,6 +69,8 @@ class RegisteredUser(BaseUser):
 class RegisterSuperUser(RegisteredUser):
     role: str = pydantic.Field(example="admin")
 
+class SuperUserUpdateStatus(RegisterSuperUser) :
+    status : bool = pydantic.Field(example= True )
 # class UpdatedUser(BaseUser):
 #     pass
 #     # role: str = pydantic.Field(example="admin")  
@@ -98,6 +101,7 @@ class DBUser(BaseUser, SQLModel, table=True):
 
     password: str
     role: str = Field(default="user", sa_column=Column(String))  # Change roles to a single string
+    status : bool = Field(default=False ,sa_column=Column(Boolean))
     items: List["Item"] = Relationship(back_populates="user") # type: ignore
 
 
