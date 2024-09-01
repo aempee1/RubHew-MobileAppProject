@@ -17,7 +17,7 @@ class Item(ItemBase, table=True):
     id_user: Optional[int] = Field(foreign_key="users.id", nullable=False)
     
     # Establish relationship to User model
-    user: Optional["DBUser"] = Relationship(back_populates="items")
+    user: Optional["DBUser"] = Relationship(back_populates="items") # type: ignore
 
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
