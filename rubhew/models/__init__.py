@@ -3,8 +3,9 @@ from typing import Optional, AsyncIterator
 from sqlmodel import Field, SQLModel, create_engine, Session, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.orm import sessionmaker
+from typing import Optional
 
 from . import users
 from . import profiles
@@ -18,7 +19,7 @@ from .transactions import *
 
 connect_args = {}
 
-engine = None
+engine: Optional[AsyncEngine] = None
 
 
 def init_db(settings):
@@ -30,6 +31,8 @@ def init_db(settings):
         future=True,
         connect_args=connect_args,
     )
+    print(f"Database engine initialized with URL: {settings.SQLDB_URL}")
+
 
 
 

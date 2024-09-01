@@ -1,6 +1,6 @@
-# ssl patch
-from gevent import monkey
+# main.py
 
+from gevent import monkey
 monkey.patch_all()
 
 from fastapi import FastAPI
@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 
 from . import config
 from . import models
-
 from . import routers
 
 
@@ -16,8 +15,7 @@ from . import routers
 async def lifespan(app: FastAPI):
     yield
     if models.engine is not None:
-        # Close the DB connection
-        await models.sesion_close()
+        await models.close_session()
 
 
 def create_app(settings=None):
@@ -26,7 +24,7 @@ def create_app(settings=None):
 
     app = FastAPI(lifespan=lifespan)
 
-    models.init_db(settings)
+    models.init_db(settings.SQLDB_URL)
 
     routers.init_router(app)
     return app

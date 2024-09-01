@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+# rubhew/config.py
 
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     SQLDB_URL: str
@@ -12,6 +13,8 @@ class Settings(BaseSettings):
         env_file=".env", validate_assignment=True, extra="allow"
     )
 
-
-def get_settings():
-    return Settings()
+def get_settings(testing=False):
+    settings = Settings()
+    if testing:
+        settings.SQLDB_URL = "sqlite+aiosqlite:///./test.db"
+    return settings
