@@ -10,6 +10,7 @@ class ItemBase(SQLModel):
     type: str
     price: float
     image: str
+    status_thing : bool
 
 
 class Item(ItemBase, table=True):
@@ -17,7 +18,7 @@ class Item(ItemBase, table=True):
 
     id_item: Optional[int] = Field(default=None, primary_key=True)
     id_user: Optional[int] = Field(foreign_key="users.id", nullable=False)
-    
+
     # Establish relationship to User model
     user: Optional["DBUser"] = Relationship(back_populates="items") # type: ignore
     transactions: List["Transaction"] = Relationship(back_populates="item") # type: ignore
@@ -43,3 +44,4 @@ class ItemUpdate(SQLModel):
     type: Optional[str] = None
     price: Optional[float] = None
     image: Optional[str] = None
+    status_thing : Optional[bool] =  False
