@@ -5,7 +5,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.orm import sessionmaker
-from typing import Optional
 
 from . import users
 from . import profiles
@@ -21,20 +20,19 @@ connect_args = {}
 
 engine: Optional[AsyncEngine] = None
 
-
 def init_db(settings):
     global engine
 
+    # Select the database URL based on whether we are testing
+    db_url = settings.TEST_SQLDB_URL if settings.TESTING else settings.SQLDB_URL
+
     engine = create_async_engine(
-        settings.SQLDB_URL,
+        db_url,
         echo=True,
         future=True,
         connect_args=connect_args,
     )
-    print(f"Database engine initialized with URL: {settings.SQLDB_URL}")
-
-
-
+    print(f"Database engine initialized with URL: {db_url}")
 
 async def recreate_table():
     try:
@@ -44,13 +42,10 @@ async def recreate_table():
     except Exception as e:
         print(f"Error creating tables: {e}")
 
-
-
 async def get_session() -> AsyncIterator[AsyncSession]:
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         yield session
-
 
 async def close_session():
     global engine
