@@ -20,6 +20,7 @@ __pycache__/
 # Ignore test database files
 test.db
 *.sqlite3
+test-data/
 
 # Ignore IDE and editor specific files
 .vscode/

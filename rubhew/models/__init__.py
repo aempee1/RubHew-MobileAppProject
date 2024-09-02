@@ -18,21 +18,19 @@ from .transactions import *
 
 connect_args = {}
 
-engine: Optional[AsyncEngine] = None
+engine = None
+
 
 def init_db(settings):
     global engine
 
-    # Select the database URL based on whether we are testing
-    db_url = settings.TEST_SQLDB_URL if settings.TESTING else settings.SQLDB_URL
-
     engine = create_async_engine(
-        db_url,
+        settings.SQLDB_URL,
         echo=True,
         future=True,
         connect_args=connect_args,
     )
-    print(f"Database engine initialized with URL: {db_url}")
+    print(f"Database engine initialized with URL: {settings.SQLDB_URL}")
 
 async def recreate_table():
     try:

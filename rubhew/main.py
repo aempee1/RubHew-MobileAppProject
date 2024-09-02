@@ -1,3 +1,8 @@
+# ssl patch
+from gevent import monkey
+
+monkey.patch_all()
+
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 

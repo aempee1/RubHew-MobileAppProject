@@ -1,13 +1,11 @@
 from httpx import AsyncClient
-from rubhew import models
 import pytest
 
-
 @pytest.mark.asyncio
-async def test_no_permission_create_merchants(
-    client: AsyncClient, user1: models.DBUser
-):
-    payload = {"name": "merchants", "user_id": user1.id}
-    response = await client.post("/merchants", json=payload)
+async def test_root_endpoint(client: AsyncClient):
+    # Make a GET request to the root endpoint
+    response = await client.get("/")
 
-    assert response.status_code == 401
+    # Assert the response status code and content
+    assert response.status_code == 200
+    assert response.json() == {"message": "RubHew API"}
