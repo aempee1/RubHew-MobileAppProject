@@ -24,7 +24,7 @@ def create_app(settings=None):
 
     app = FastAPI(lifespan=lifespan)
 
-    models.init_db(settings.SQLDB_URL)
+    models.init_db(settings)
 
     routers.init_router(app)
     return app
