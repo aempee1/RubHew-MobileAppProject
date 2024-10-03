@@ -12,7 +12,7 @@ router = APIRouter(prefix="/categories", tags=["categories"])
 async def create_category(
     category: models.CategoryCreate,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+    current_user: models.User = Depends(deps.get_current_active_superuser)
 ) -> models.Category:
     statement = select(models.Category).where(models.Category.name_category == category.name_category)
     result = await session.exec(statement)
@@ -35,7 +35,7 @@ async def create_category(
 async def get_category(
     category_id: int,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+    # current_user: models.DBUser = Depends(deps.get_current_user)
 ) -> models.Category:
     category = await session.get(models.Category, category_id)
     if not category:
@@ -48,7 +48,7 @@ async def get_category(
 @router.get("/", response_model=List[models.CategoryRead])
 async def list_categories(
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+    # current_user: models.DBUser = Depends(deps.get_current_user)
 ) -> List[models.Category]:
     statement = select(models.Category)
     results = await session.exec(statement)
@@ -61,7 +61,7 @@ async def update_category(
     category_id: int,
     category_update: models.CategoryCreate,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+   current_user: models.User = Depends(deps.get_current_active_superuser)
 ) -> models.Category:
     category = await session.get(models.Category, category_id)
     if not category:
@@ -82,7 +82,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+    current_user: models.User = Depends(deps.get_current_active_superuser)
 ):
     category = await session.get(models.Category, category_id)
     if not category:

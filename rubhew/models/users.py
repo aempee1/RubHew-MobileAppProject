@@ -18,6 +18,7 @@ class BaseUser(BaseModel):
     username: str = pydantic.Field(example="admin")
     first_name: str = pydantic.Field(example="Firstname")
     last_name: str = pydantic.Field(example="Lastname")
+    
 
 
 class UpdateUser(BaseModel):
@@ -25,6 +26,7 @@ class UpdateUser(BaseModel):
     email: str = pydantic.Field(example="admin@email.local")
     first_name: str = pydantic.Field(example="Firstname")
     last_name: str = pydantic.Field(example="Lastname")
+    # profile_image: str = pydantic.Field(example="base64")
 
 class User(BaseUser):
     id: int

@@ -6,6 +6,7 @@ import datetime
 # Define CategoryBase for shared fields
 class CategoryBase(SQLModel):
     name_category: str = Field(index=True)
+    category_image : str = Field(index=True)
  
 
 
