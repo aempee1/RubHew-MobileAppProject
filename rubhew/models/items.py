@@ -36,7 +36,6 @@ class ItemBase(SQLModel):
     description: str
     price: float
     image: str
-    status_thing: bool
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id_category")
 
 
@@ -74,5 +73,4 @@ class ItemUpdate(SQLModel):
     description: Optional[str] = None
     price: Optional[float] = None
     image: Optional[str] = None
-    status_thing: Optional[bool] = False
     category_id: Optional[int] = None  # Allow updating category
