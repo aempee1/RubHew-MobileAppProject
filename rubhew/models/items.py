@@ -55,12 +55,14 @@ class Item(ItemBase, table=True):
 class ItemCreate(ItemBase):
     id_user: int
 
-class ItemRead(ItemBase):
+class ItemRead(SQLModel):
     id_item: int
-    id_user: int
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-    category: Optional[CategoryRead] = None  # Include category information in read response
+    name_item: str
+    description: str
+    price: float
+    image: str
+    detail: Optional[dict] = None
+    category_id: int  # Only show category_id, not the full category
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
