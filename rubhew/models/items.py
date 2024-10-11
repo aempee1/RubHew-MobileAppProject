@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy import Column, JSON, ARRAY, String  # Explicitly import Column, JSON, ARRAY, String from SQLAlchemy
+from sqlalchemy import Column, JSON  # Explicitly import Column and JSON from SQLAlchemy
 from typing import Optional, List
 import datetime
 
@@ -30,15 +30,11 @@ class ItemBase(SQLModel):
     name_item: str = Field(index=True)
     description: str
     price: float
-    # Modify image to store a list of image URLs/strings
-    image: List[str] = Field(default=[], sa_column=Column(ARRAY(String)))  # Use ARRAY for storing list of images
+    image: str
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id_category")
 
     # Use JSON field explicitly for detail
     detail: Optional[dict] = Field(default=None, sa_column=Column(JSON))
-
-    # Add state field with default value as False
-    state: bool = Field(default=False)
 
 class Item(ItemBase, table=True):
     __tablename__ = "items"  # Table name in the database
@@ -57,25 +53,21 @@ class Item(ItemBase, table=True):
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
 class ItemCreate(ItemBase):
-    pass
+    id_user: int
 
 class ItemRead(SQLModel):
     id_item: int
     name_item: str
     description: str
     price: float
-    image: List[str]  # Adjust image field to be a list of strings
+    image: str
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
-    state: bool  # Include state field in the ItemRead model
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
-    image: Optional[List[str]] = None  # Allow updating list of images
+    image: Optional[str] = None
     detail: Optional[dict] = None  # Allow updating the detail field
     category_id: Optional[int] = None  # Allow updating category
-
-    # Allow only the update of the state in ItemUpdate
-    state: Optional[bool] = None  # Make state updatable only via ItemUpdate
