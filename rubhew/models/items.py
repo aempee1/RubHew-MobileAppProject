@@ -37,6 +37,9 @@ class ItemBase(SQLModel):
     # Use JSON field explicitly for detail
     detail: Optional[dict] = Field(default=None, sa_column=Column(JSON))
 
+    # Add state field with default value as False
+    state: bool = Field(default=False)
+
 class Item(ItemBase, table=True):
     __tablename__ = "items"  # Table name in the database
 
@@ -64,6 +67,7 @@ class ItemRead(SQLModel):
     image: List[str]  # Adjust image field to be a list of strings
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
+    state: bool  # Include state field in the ItemRead model
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
@@ -72,3 +76,6 @@ class ItemUpdate(SQLModel):
     image: Optional[List[str]] = None  # Allow updating list of images
     detail: Optional[dict] = None  # Allow updating the detail field
     category_id: Optional[int] = None  # Allow updating category
+
+    # Allow only the update of the state in ItemUpdate
+    state: Optional[bool] = None  # Make state updatable only via ItemUpdate
