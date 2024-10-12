@@ -32,6 +32,44 @@ async def create_item(
 
     return new_item
 
+@router.get("/my-items/", response_model=List[models.ItemRead])
+async def get_user_items(
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.DBUser = Depends(deps.get_current_user)
+) -> List[models.ItemRead]:
+    # Fetch items for the current user
+    statement = select(models.Item).where(models.Item.id_user == current_user.id)
+    results = await session.exec(statement)
+    items = results.all()
+
+    item_reads = []
+    for item in items:
+        # Fetch the category using the category_id from the item
+        category_details = None
+        if item.category_id:
+            category = await session.get(models.Category, item.category_id)
+            if category:
+                category_details = {
+                    "name_category": category.name_category,
+                    "category_image": category.category_image
+                }
+        
+        # Add the item with category details to the response
+        item_reads.append({
+            "id_item": item.id_item,
+            "name_item": item.name_item,
+            "description": item.description,
+            "price": item.price,
+            "images": item.images,
+            "status": item.status,
+            "detail": item.detail,
+            "category_id": item.category_id,
+            "category_details": category_details
+        })
+
+    return item_reads
+
+
 @router.get("/{item_id}")
 async def get_item(
     item_id: int,
@@ -68,13 +106,12 @@ async def get_item(
     }
 
 
-@router.get("/")
+@router.get("/", response_model=List[models.ItemRead])
 async def list_items(
-    session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
+    session: Annotated[AsyncSession, Depends(models.get_session)]
 ):
-    # Fetch all items for the current user
-    statement = select(models.Item).where(models.Item.id_user == current_user.id)
+    # Fetch all items from the database (without filtering by user)
+    statement = select(models.Item)
     results = await session.exec(statement)
     items = results.all()
 
@@ -104,6 +141,7 @@ async def list_items(
         })
     
     return item_reads
+
 
 
 @router.put("/{item_id}", response_model=models.ItemRead)

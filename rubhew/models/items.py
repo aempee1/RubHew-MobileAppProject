@@ -31,7 +31,7 @@ class ItemBase(SQLModel):
     description: str
     price: float
     images: List[str] = Field(sa_column=Column(JSON), default=[])  # Store multiple base64 images as a list of strings
-    status: bool = Field(default=True)  # Boolean field to represent item status (active/inactive)
+    status: str = Field(default="Available")  # Boolean field to represent item status (active/inactive)
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id_category")
 
     # Use JSON field explicitly for detail
@@ -63,7 +63,7 @@ class ItemRead(SQLModel):
     description: str
     price: float
     images: List[str]  # Include the list of Base64-encoded images
-    status: bool       # Include the item's status
+    status: str      # Include the item's status
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
 
@@ -72,6 +72,6 @@ class ItemUpdate(SQLModel):
     description: Optional[str] = None
     price: Optional[float] = None
     images: Optional[List[str]] = None  # Allow updating the list of images
-    status: Optional[bool] = None       # Allow updating the status field
+    status: Optional[str] = None       # Allow updating the status field
     detail: Optional[dict] = None       # Allow updating the detail field
     category_id: Optional[int] = None   # Allow updating category
