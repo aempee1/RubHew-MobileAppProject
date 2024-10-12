@@ -30,7 +30,8 @@ class ItemBase(SQLModel):
     name_item: str = Field(index=True)
     description: str
     price: float
-    image: str
+    images: List[str] = Field(sa_column=Column(JSON), default=[])  # Store multiple base64 images as a list of strings
+    status: bool = Field(default=True)  # Boolean field to represent item status (active/inactive)
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id_category")
 
     # Use JSON field explicitly for detail
@@ -52,15 +53,17 @@ class Item(ItemBase, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
+# ItemCreate no longer needs `id_user` in the request body
 class ItemCreate(ItemBase):
-    id_user: int
+    pass  # Removed id_user here
 
 class ItemRead(SQLModel):
     id_item: int
     name_item: str
     description: str
     price: float
-    image: str
+    images: List[str]  # Include the list of Base64-encoded images
+    status: bool       # Include the item's status
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
 
@@ -68,6 +71,7 @@ class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
-    image: Optional[str] = None
-    detail: Optional[dict] = None  # Allow updating the detail field
-    category_id: Optional[int] = None  # Allow updating category
+    images: Optional[List[str]] = None  # Allow updating the list of images
+    status: Optional[bool] = None       # Allow updating the status field
+    detail: Optional[dict] = None       # Allow updating the detail field
+    category_id: Optional[int] = None   # Allow updating category

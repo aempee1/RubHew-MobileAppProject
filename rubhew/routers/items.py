@@ -13,15 +13,24 @@ async def create_item(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.DBUser = Depends(deps.get_current_user)
 ) -> models.Item:
-    new_item = models.Item.from_orm(item)
-    new_item.id_user = current_user.id
+    # Manually create an Item instance
+    new_item = models.Item(
+        name_item=item.name_item,
+        description=item.description,
+        price=item.price,
+        images=item.images,
+        status=item.status,
+        detail=item.detail,
+        category_id=item.category_id,
+        id_user=current_user.id  # Assign the user ID here
+    )
 
+    # Save the item to the database
     session.add(new_item)
     await session.commit()
     await session.refresh(new_item)
 
     return new_item
-
 
 @router.get("/{item_id}")
 async def get_item(
@@ -51,13 +60,12 @@ async def get_item(
         "name_item": item.name_item,
         "description": item.description,
         "price": item.price,
-        "image": item.image,
+        "images": item.images,  # Modified to return list of images
+        "status": item.status,  # Added status field
         "detail": item.detail,
         "category_id": item.category_id,
         "category_details": category_details  # Adding the category details manually
     }
-
-
 
 
 @router.get("/")
@@ -88,7 +96,8 @@ async def list_items(
             "name_item": item.name_item,
             "description": item.description,
             "price": item.price,
-            "image": item.image,
+            "images": item.images,  # Modified to handle list of images
+            "status": item.status,  # Added status field
             "detail": item.detail,
             "category_id": item.category_id,
             "category_details": category_details  # Adding category details manually
@@ -108,6 +117,7 @@ async def update_item(
     if not item or item.id_user != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
+    # Update the item with the provided fields
     for key, value in item_update.dict(exclude_unset=True).items():
         setattr(item, key, value)
 
