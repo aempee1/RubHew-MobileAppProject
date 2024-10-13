@@ -83,7 +83,13 @@ class Item(ItemBase, table=True):
 class ItemCreate(ItemBase):
     tags: List[int] = []  # Add this line
 
+class UserProfile(SQLModel):
+    username: str
+    first_name: str
+    last_name: str
+
 class ItemRead(SQLModel):
+    id_user:int
     id_item: int
     name_item: str
     description: str
@@ -93,6 +99,7 @@ class ItemRead(SQLModel):
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
     tags: List[TagsRead] = []  # Include the tags associated with the item
+    user_profile: Optional[UserProfile]
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None

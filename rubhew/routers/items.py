@@ -124,9 +124,20 @@ async def list_items(
                     id_tags=tag.id_tags,
                     name_tags=tag.name_tags
                 ))
+        # Fetch user profile details using id_user from the item
+        user_profile = None
+        if item.id_user:
+            user = await session.get(models.DBUser, item.id_user) 
+            if user:
+                user_profile = {
+                    "username": user.username,  # Adjust according to your user model fields
+                    "first_name" : user.first_name,
+                    "last_name" : user.last_name
 
+                }
         # Add the item with category details and tags to the response list
         item_reads.append(models.ItemRead(
+            id_user=item.id_user,
             id_item=item.id_item,
             name_item=item.name_item,
             description=item.description,
@@ -135,7 +146,8 @@ async def list_items(
             status=item.status,
             detail=item.detail,
             category_id=item.category_id,
-            tags=tags  # Include tags in the response
+            tags=tags,  # Include tags in the response
+            user_profile=user_profile 
         ))
 
     return item_reads
