@@ -45,3 +45,24 @@ async def update_profile(
     await session.refresh(profile)
 
     return profile
+
+@router.put("/updateMyFollowing", response_model=models.UpdateFollowingModel)
+async def update_profile(
+    profile_update: models.UpdateFollowingModel,
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.DBUser = Depends(deps.get_current_user)
+) -> models.UpdateFollowingModel:
+    # Fetch the user's profile using their ID
+    profile = await session.get(models.DBProfile, current_user.id)
+
+    if not profile or profile.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User profile not found")
+
+    for key, value in profile_update.dict(exclude_unset=True).items():
+        setattr(profile, key, value)
+
+    session.add(profile)
+    await session.commit()
+    await session.refresh(profile)
+
+    return profile

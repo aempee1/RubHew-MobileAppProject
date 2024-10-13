@@ -4,6 +4,7 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel , ConfigDict
 from sqlmodel import Field , SQLModel , create_engine , Session , select , Relationship
+from sqlalchemy import Column, JSON
 
 from . import users
 
@@ -19,6 +20,12 @@ class ProfileModel(BaseModel):
     phoneNumber: str | None = None
     profile_image: str | None = None
     user_id : int | None = 0
+    tag_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
+
+    # Field for storing followed categories as a list of integers
+    category_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
+
+
 
 class CreateProfileModel(BaseModel):
 
@@ -35,6 +42,12 @@ class UpdateProfileModel(BaseModel):
     phoneNumber: str | None = None
     profile_image: str | None = None
 
+class UpdateFollowingModel(BaseModel):
+   
+    tag_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
+    # Field for storing followed categories as a list of integers
+    category_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
+
 class Profile(ProfileModel):
     id : int
 
@@ -44,6 +57,12 @@ class DBProfile(ProfileModel , SQLModel , table = True) :
 
     user_id: int = Field(default=None, foreign_key="users.id")
     user: users.DBUser | None = Relationship()
+    
+     # Field for storing followed tags as a list of integers
+    tag_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
+
+    # Field for storing followed categories as a list of integers
+    category_following: List[int] = Field(sa_column=Column(JSON), default_factory=list)
 
 class ProfileList(ProfileModel) :
     model_config = ConfigDict(from_attributes=True)
