@@ -25,7 +25,25 @@ class CategoryCreate(CategoryBase):
 class CategoryRead(CategoryBase):
     id_category: int
 
-# Now we modify the ItemBase and Item to include a relationship with Category
+#----------------------------------------------------------------
+class TagsBase(SQLModel):
+    name_tags: str = Field(index=True)
+    
+class Tags(TagsBase, table=True):
+    __tablename__ = "tags"  # Fixed table name for tags
+
+    id_tags: Optional[int] = Field(default=None, primary_key=True)
+
+    # Relationship to items
+    items: List["ItemTagsLink"] = Relationship(back_populates="tag")  # type: ignore
+
+class TagsCreate(TagsBase):
+    pass
+
+class TagsRead(TagsBase):
+    id_tags: int
+
+# Now we modify the ItemBase and Item to include a relationship with Category and Tags
 class ItemBase(SQLModel):
     name_item: str = Field(index=True)
     description: str
@@ -34,9 +52,13 @@ class ItemBase(SQLModel):
     status: str = Field(default="Available")  # Boolean field to represent item status (active/inactive)
     category_id: Optional[int] = Field(default=None, foreign_key="categories.id_category")
 
+    # Remove the tags relationship here
+    # Use the association table instead
+
     # Use JSON field explicitly for detail
     detail: Optional[dict] = Field(default=None, sa_column=Column(JSON))
 
+# models.py
 class Item(ItemBase, table=True):
     __tablename__ = "items"  # Table name in the database
 
@@ -50,12 +72,16 @@ class Item(ItemBase, table=True):
     # Relationship to Category
     category: Optional["Category"] = Relationship(back_populates="items")  # type: ignore
 
+    # Relationship to Tags through association table
+    tags_link: List["ItemTagsLink"] = Relationship(back_populates="item")  # <--- Add this line
+
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
+
 # ItemCreate no longer needs `id_user` in the request body
 class ItemCreate(ItemBase):
-    pass  # Removed id_user here
+    tags: List[int] = []  # Add this line
 
 class ItemRead(SQLModel):
     id_item: int
@@ -66,6 +92,7 @@ class ItemRead(SQLModel):
     status: str      # Include the item's status
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
+    tags: List[TagsRead] = []  # Include the tags associated with the item
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
@@ -75,3 +102,15 @@ class ItemUpdate(SQLModel):
     status: Optional[str] = None       # Allow updating the status field
     detail: Optional[dict] = None       # Allow updating the detail field
     category_id: Optional[int] = None   # Allow updating category
+    tags: Optional[List[int]] = None     # Allow updating tags
+
+# Association table for the many-to-many relationship between Item and Tags
+class ItemTagsLink(SQLModel, table=True):
+    __tablename__ = "item_tags_link"  # Association table name
+
+    item_id: Optional[int] = Field(foreign_key="items.id_item", primary_key=True)
+    tag_id: Optional[int] = Field(foreign_key="tags.id_tags", primary_key=True)
+
+    item: Optional[Item] = Relationship(back_populates="tags_link")  # <--- Ensure this is correct
+    tag: Optional[Tags] = Relationship(back_populates="items")  # type: ignore
+
