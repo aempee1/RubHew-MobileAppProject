@@ -121,3 +121,14 @@ class ItemTagsLink(SQLModel, table=True):
     item: Optional[Item] = Relationship(back_populates="tags_link")  # <--- Ensure this is correct
     tag: Optional[Tags] = Relationship(back_populates="items")  # type: ignore
 
+class ItemPost(SQLModel):
+    id_user:int
+    id_item: int
+    name_item: str
+    description: str
+    price: float
+    images: List[str]  # Include the list of Base64-encoded images
+    status: str      # Include the item's status
+    detail: Optional[dict] = None
+    category_id: int  # Only show category_id, not the full category
+

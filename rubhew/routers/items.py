@@ -7,7 +7,7 @@ from .. import models, deps
 
 router = APIRouter(prefix="/items", tags=["items"])
 
-@router.post("/", response_model=models.ItemRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=models.ItemPost, status_code=status.HTTP_201_CREATED)
 async def create_item(
     item: models.ItemCreate,
     session: Annotated[AsyncSession, Depends(models.get_session)],
