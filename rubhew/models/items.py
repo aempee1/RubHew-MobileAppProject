@@ -99,7 +99,19 @@ class ItemRead(SQLModel):
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
     tags: List[TagsRead] = []  # Include the tags associated with the item
-    user_profile: Optional[UserProfile]
+    user_profile: Optional[UserProfile] 
+
+class ItemRead_Only(SQLModel):
+    
+    id_item: int
+    name_item: str
+    description: str
+    price: float
+    images: List[str]  # Include the list of Base64-encoded images
+    status: str      # Include the item's status
+    detail: Optional[dict] = None
+    category_id: int  # Only show category_id, not the full category
+    tags: List[TagsRead] = []  # Include the tags associated with the item
 
 class ItemUpdate(SQLModel):
     name_item: Optional[str] = None
