@@ -41,11 +41,11 @@ async def create_item(
     return new_item
 
 
-@router.get("/my-items/", response_model=List[models.ItemRead])
+@router.get("/my-items/", response_model=List[models.ItemRead_Only])
 async def get_user_items(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.DBUser = Depends(deps.get_current_user)
-) -> List[models.ItemRead]:
+) -> List[models.ItemRead_Only]:
     # Fetch items for the current user
     statement = select(models.Item).where(models.Item.id_user == current_user.id)
     results = await session.exec(statement)
@@ -73,11 +73,12 @@ async def get_user_items(
             if tag:
                 tags.append(models.TagsRead(
                     id_tags=tag.id_tags,
-                    name_tags=tag.name_tags  # Assuming your Tags model has a name_tags field
+                    name_tags=tag.name_tags
                 ))
 
         # Add the item with category details and tags to the response
-        item_reads.append(models.ItemRead(
+        item_reads.append(models.ItemRead_Only(
+           
             id_item=item.id_item,
             name_item=item.name_item,
             description=item.description,
@@ -86,10 +87,12 @@ async def get_user_items(
             status=item.status,
             detail=item.detail,
             category_id=item.category_id,
-            tags=tags  # Include tags in the response
+            tags=tags,
         ))
 
     return item_reads
+
+
 
 @router.get("/", response_model=List[models.ItemRead])
 async def list_items(
