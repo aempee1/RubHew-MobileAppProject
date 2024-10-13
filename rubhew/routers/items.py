@@ -157,7 +157,7 @@ async def list_items(
 
 
 
-@router.get("/{item_id}", response_model=models.ItemRead)
+@router.get("/{item_id}", response_model=models.ItemRead_Only)
 async def get_item(
     item_id: int,
     session: Annotated[AsyncSession, Depends(models.get_session)],
@@ -193,7 +193,7 @@ async def get_item(
             ))
 
     # Return the item with category and tags
-    return models.ItemRead(
+    return models.ItemRead_Only(
         id_item=item.id_item,
         name_item=item.name_item,
         description=item.description,
