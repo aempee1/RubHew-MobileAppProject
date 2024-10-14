@@ -149,3 +149,7 @@ class ItemPost(SQLModel):
     detail: Optional[dict] = None
     category_id: int  # Only show category_id, not the full category
 
+class ItemStatusUpdate(SQLModel):
+    status: str  # You can replace this with an Enum if you have predefined statuses
+
+

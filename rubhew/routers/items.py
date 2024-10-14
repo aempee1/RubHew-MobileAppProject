@@ -306,3 +306,52 @@ async def delete_item(
     await session.commit()
 
     return {"message": "Item and associated tags deleted successfully"}
+
+
+@router.put("/change_status/{item_id}", response_model=models.ItemRead)
+async def change_item_status(
+    item_id: int,
+    item_status_update: models.ItemStatusUpdate,
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.DBUser = Depends(deps.get_current_user)
+) -> models.ItemRead:
+    # Fetch the item to be updated
+    item = await session.get(models.Item, item_id)
+
+    # Check if the item exists and belongs to the current user
+    if not item or item.id_user != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+
+    # Update the item's status
+    item.status = item_status_update.status  # Update the status
+
+    # Add the updated item to the session
+    session.add(item)
+
+    # Commit the transaction
+    await session.commit()
+
+    # Refresh the item to get the updated data
+    await session.refresh(item)
+
+    # Construct the ItemRead object with the updated status
+    item_read = models.ItemRead(
+        id_user=item.id_user,
+        id_item=item.id_item,
+        name_item=item.name_item,
+        description=item.description,
+        price=item.price,
+        images=item.images,
+        status=item.status,
+        detail=item.detail,
+        category_id=item.category_id,
+        tags=[],  # Include tags if needed, or fetch as required
+        user_profile=models.UserProfile(
+            username=current_user.username,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name
+        )
+    )
+
+    # Return the updated item
+    return item_read
