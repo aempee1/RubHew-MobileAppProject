@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List, Annotated
+from sqlalchemy import delete  # เพิ่มการนำเข้าคำสั่ง delete
 
 from .. import models, deps
 
@@ -213,20 +214,75 @@ async def update_item(
     item_update: models.ItemUpdate,
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.DBUser = Depends(deps.get_current_user)
-) -> models.ItemRead:  # Changed return type to ItemRead
+) -> models.ItemRead:
+    # Fetch the item to be updated
     item = await session.get(models.Item, item_id)
+
+    # Check if the item exists and belongs to the current user
     if not item or item.id_user != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+    
+    # If category_id is provided, validate that it exists
+    if item_update.category_id is not None:
+        category = await session.get(models.Category, item_update.category_id)
+        if not category:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid category")
 
-    # Update the item with the provided fields
+    # Update the item with the provided fields, excluding unset fields
     for key, value in item_update.dict(exclude_unset=True).items():
-        setattr(item, key, value)
+        if key != "tags":  # Skip 'tags' update here
+            setattr(item, key, value)
 
+    # Update the tags if provided
+    if item_update.tags is not None:
+        # Clear existing tags
+        await session.execute(
+            delete(models.ItemTagsLink).where(models.ItemTagsLink.item_id == item_id)
+        )
+        # Add updated tags
+        for tag_id in item_update.tags:
+            new_link = models.ItemTagsLink(item_id=item_id, tag_id=tag_id)
+            session.add(new_link)
+
+    # Add the updated item to the session
     session.add(item)
+    
+    # Commit the transaction
     await session.commit()
+    
+    # Refresh the item to get the updated data
     await session.refresh(item)
 
-    return item
+    # Fetch the updated tags for the item
+    tags_links = await session.execute(
+        select(models.Tags).join(models.ItemTagsLink).where(models.ItemTagsLink.item_id == item_id)
+    )
+    tags = tags_links.scalars().all()
+
+    # Construct the ItemRead object with the updated tags
+    item_read = models.ItemRead(
+        id_user=item.id_user,
+        id_item=item.id_item,
+        name_item=item.name_item,
+        description=item.description,
+        price=item.price,
+        images=item.images,
+        status=item.status,
+        detail=item.detail,
+        category_id=item.category_id,
+        tags=[models.TagsRead.from_orm(tag) for tag in tags],  # Map tags to TagsRead schema
+        user_profile=models.UserProfile(  # Assume user data is available
+            username=current_user.username,
+            first_name=current_user.first_name,
+            last_name=current_user.last_name
+        )
+    )
+
+    # Return the updated item
+    return item_read
+
+
+
 
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_item(
