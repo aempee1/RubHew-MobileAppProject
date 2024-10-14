@@ -106,7 +106,6 @@ async def list_items(
 
     item_reads = []
     for item in items:
-        # Fetch the category using the category_id from the item
         category_details = None
         if item.category_id:
             category = await session.get(models.Category, item.category_id)
@@ -115,7 +114,7 @@ async def list_items(
                     "name_category": category.name_category,
                     "category_image": category.category_image
                 }
-
+            
         # Fetch the tags linked to the item
         tags = []
         item_tags = await session.exec(
@@ -151,7 +150,8 @@ async def list_items(
             detail=item.detail,
             category_id=item.category_id,
             tags=tags,  # Include tags in the response
-            user_profile=user_profile 
+            user_profile=user_profile,
+            category_details=category_details
         ))
 
     return item_reads
