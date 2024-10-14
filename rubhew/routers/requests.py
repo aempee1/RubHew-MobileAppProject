@@ -96,7 +96,8 @@ async def get_my_requests(
                 item=models.ItemDetail(
                     id_item=item.id_item,
                     name_item=item.name_item,
-                    images=item.images  # Assuming images is a list of strings
+                    images=item.images,
+                    status=item.status
                 )
             )
             request_details.append(request_detail)
@@ -146,7 +147,8 @@ async def get_all_requests(
                 item=models.ItemDetail(
                     id_item=item.id_item,
                     name_item=item.name_item,
-                    images=item.images  # Assuming images is a list of strings
+                    images=item.images,
+                    status=item.status
                 )
             )
             request_details.append(request_detail)

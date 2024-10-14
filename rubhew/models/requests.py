@@ -51,6 +51,7 @@ class ItemDetail(SQLModel):
     id_item: int
     name_item: str
     images: List[str]  # Assuming images is a list of strings (base64 or URLs)
+    status: str
 
 class RequestDetailRead(SQLModel):
     id: int
