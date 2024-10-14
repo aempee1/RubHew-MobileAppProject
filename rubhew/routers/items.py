@@ -289,9 +289,20 @@ async def delete_item(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.DBUser = Depends(deps.get_current_user)
 ):
+    # Fetch the item to be deleted
     item = await session.get(models.Item, item_id)
+
+    # Check if the item exists and belongs to the current user
     if not item or item.id_user != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
 
+    # Delete associated tags
+    await session.execute(
+        delete(models.ItemTagsLink).where(models.ItemTagsLink.item_id == item_id)
+    )
+
+    # Delete the item itself
     await session.delete(item)
     await session.commit()
+
+    return {"message": "Item and associated tags deleted successfully"}
