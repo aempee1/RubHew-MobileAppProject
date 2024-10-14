@@ -41,26 +41,11 @@ async def create_request(
     return new_request
 
 
-# Get all requests (admin route or for debugging)
-@router.get("/", response_model=List[models.RequestRead])
-async def get_all_requests(
-    session: Annotated[AsyncSession, Depends(models.get_session)],
-    current_user: models.DBUser = Depends(deps.get_current_user)
-) -> List[models.RequestRead]:
-    # Fetch all requests from the database (consider admin authorization here)
-    statement = select(models.Request)
-    results = await session.exec(statement)
-    requests = results.all()
-
-    return requests
-
-
-# Get requests related to the current user (both sent and received)
-@router.get("/my-requests", response_model=List[models.RequestRead])
+@router.get("/my-requests", response_model=List[models.RequestDetailRead])
 async def get_my_requests(
     session: Annotated[AsyncSession, Depends(models.get_session)],
     current_user: models.DBUser = Depends(deps.get_current_user)
-) -> List[models.RequestRead]:
+) -> List[models.RequestDetailRead]:
     # Fetch requests where the current user is either the sender or receiver
     statement = select(models.Request).where(
         (models.Request.id_sent == current_user.id) | (models.Request.id_receive == current_user.id)
@@ -68,7 +53,95 @@ async def get_my_requests(
     results = await session.exec(statement)
     requests = results.all()
 
-    return requests
+    # Fetch user and item details
+    request_details = []
+    for request in requests:
+        sender = await session.get(models.DBUser, request.id_sent)
+        receiver = await session.get(models.DBUser, request.id_receive)
+        item = await session.get(models.Item, request.id_item)
+
+        if sender and receiver and item:
+            request_detail = models.RequestDetailRead(
+                id=request.id,
+                id_sent=request.id_sent,
+                id_receive=request.id_receive,
+                id_item=request.id_item,
+                message=request.message,
+                res_message=request.res_message,
+                create_time=request.create_time,
+                update_time=request.update_time,
+                sender=models.UserDetail(
+                    username=sender.username,
+                    email=sender.email,
+                    first_name=sender.first_name,
+                    last_name=sender.last_name
+                ),
+                receiver=models.UserDetail(
+                    username=receiver.username,
+                    email=receiver.email,
+                    first_name=receiver.first_name,
+                    last_name=receiver.last_name
+                ),
+                item=models.ItemDetail(
+                    id_item=item.id_item,
+                    name_item=item.name_item,
+                    images=item.images  # Assuming images is a list of strings
+                )
+            )
+            request_details.append(request_detail)
+
+    return request_details
+
+
+@router.get("/", response_model=List[models.RequestDetailRead])
+async def get_all_requests(
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.DBUser = Depends(deps.get_current_user)
+) -> List[models.RequestDetailRead]:
+    # Fetch all requests from the database (consider admin authorization here)
+    statement = select(models.Request)
+    results = await session.exec(statement)
+    requests = results.all()
+
+    # Fetch user and item details
+    request_details = []
+    for request in requests:
+        sender = await session.get(models.DBUser, request.id_sent)
+        receiver = await session.get(models.DBUser, request.id_receive)
+        item = await session.get(models.Item, request.id_item)
+
+        if sender and receiver and item:
+            request_detail = models.RequestDetailRead(
+                id=request.id,
+                id_sent=request.id_sent,
+                id_receive=request.id_receive,
+                id_item=request.id_item,
+                message=request.message,
+                res_message=request.res_message,
+                create_time=request.create_time,
+                update_time=request.update_time,
+                sender=models.UserDetail(
+                    username=sender.username,
+                    email=sender.email,
+                    first_name=sender.first_name,
+                    last_name=sender.last_name
+                ),
+                receiver=models.UserDetail(
+                    username=receiver.username,
+                    email=receiver.email,
+                    first_name=receiver.first_name,
+                    last_name=receiver.last_name
+                ),
+                item=models.ItemDetail(
+                    id_item=item.id_item,
+                    name_item=item.name_item,
+                    images=item.images  # Assuming images is a list of strings
+                )
+            )
+            request_details.append(request_detail)
+
+    return request_details
+
 
 
 # Update a request's message or response message

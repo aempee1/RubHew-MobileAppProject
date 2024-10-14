@@ -41,3 +41,28 @@ class RequestRead(SQLModel):
 class RequestUpdate(SQLModel):
     message: Optional[str] = None  # Allows updating the requester's message
     res_message: Optional[str] = None  # Allows updating the owner's response message
+
+
+class UserDetail(SQLModel):
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+
+class ItemDetail(SQLModel):
+    id_item: int
+    name_item: str
+    images: List[str]  # Assuming images is a list of strings (base64 or URLs)
+
+class RequestDetailRead(SQLModel):
+    id: int
+    id_sent: int
+    id_receive: int
+    id_item: int
+    message: Optional[str]
+    res_message: Optional[str]
+    create_time: datetime.datetime
+    update_time: datetime.datetime
+    sender: UserDetail
+    receiver: UserDetail
+    item: ItemDetail
