@@ -71,7 +71,7 @@ class Item(ItemBase, table=True):
 
     # Relationship to Category
     category: Optional["Category"] = Relationship(back_populates="items")  # type: ignore
-
+    
     # Relationship to Tags through association table
     tags_link: List["ItemTagsLink"] = Relationship(back_populates="item")  # <--- Add this line
 
@@ -104,7 +104,7 @@ class ItemRead(SQLModel):
     category_id: int  # Only show category_id, not the full category
     tags: List[TagsRead] = []  # Include the tags associated with the item
     user_profile: Optional[UserProfile]
-    category_details:  Optional[CategoryBase]
+    
 
 class ItemRead_Only(SQLModel):
     
