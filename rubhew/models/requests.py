@@ -66,3 +66,8 @@ class RequestDetailRead(SQLModel):
     receiver: UserDetail
     item: ItemDetail
 
+class RequestUpdate(SQLModel):
+    res_message: Optional[str] = None
+    item_status: Optional[str] = None  # This will hold the new status for the item
+
+

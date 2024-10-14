@@ -33,11 +33,21 @@ async def create_request(
         update_time=datetime.utcnow()
     )
 
+    # Add the new request to the session
     session.add(new_request)
+
+    # Update the status of the item to "Progress"
+    item.status = "Progress"
+    session.add(item)  # Mark the item for commit
+
+    # Commit the session
     await session.commit()
+    
+    # Refresh the new request to get the updated data
     await session.refresh(new_request)
 
     return new_request
+
 
 
 
@@ -198,7 +208,53 @@ async def delete_request(
     if request.id_sent != current_user.id and request.id_receive != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this request")
 
+    # Fetch the associated item
+    item = await session.get(models.Item, request.id_item)
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Associated item not found")
+
+    # Change item status back to "Available"
+    item.status = "Available"
+    session.add(item)  # Mark the updated item for commit
+
+    # Delete the request
     await session.delete(request)
+
+    # Commit the session
     await session.commit()
 
     return
+
+@router.put("/{request_id}/respond", response_model=models.RequestRead)
+async def respond_to_request(
+    request_id: int,
+    response_data: models.RequestUpdate,  # This should include `res_message` and the new `item_status`
+    session: Annotated[AsyncSession, Depends(models.get_session)],
+    current_user: models.DBUser = Depends(deps.get_current_user)
+) -> models.Request:
+    # Fetch the request
+    request = await session.get(models.Request, request_id)
+    if not request:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Request not found")
+
+    # Ensure the current user is the receiver of the request
+    if request.id_receive != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to respond to this request")
+
+    # Update the response message
+    if response_data.res_message:
+        request.res_message = response_data.res_message  # Update the response message
+
+    # Update the status of the item if provided
+    if response_data.item_status:
+        item = await session.get(models.Item, request.id_item)
+        if item:
+            item.status = response_data.item_status  # Update item status
+            session.add(item)  # Mark the item for commit
+
+    request.update_time = datetime.utcnow()  # Update the timestamp
+    session.add(request)  # Mark the request for commit
+    await session.commit()
+    await session.refresh(request)
+
+    return request
