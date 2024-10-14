@@ -26,7 +26,7 @@ async def create_request(
     # Create the request
     new_request = models.Request(
         id_sent=current_user.id,  # Automatically use the current user's ID
-        id_receive=item.id_user,   # The item's owner's ID
+        id_receive=item.id_user,   # Derive the receiver's ID from the item's owner
         id_item=request_data.id_item,
         message=request_data.message,
         create_time=datetime.utcnow(),
@@ -47,6 +47,7 @@ async def create_request(
     await session.refresh(new_request)
 
     return new_request
+
 
 
 
