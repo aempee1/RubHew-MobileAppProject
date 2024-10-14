@@ -11,10 +11,14 @@ from . import profiles
 from . import items
 from . import transactions
 
+from . import requests
+
 from .users import *
 from .profiles import *
 from .items import *
 from .transactions import *
+
+from .requests import *
 
 connect_args = {}
 

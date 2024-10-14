@@ -75,6 +75,10 @@ class Item(ItemBase, table=True):
     # Relationship to Tags through association table
     tags_link: List["ItemTagsLink"] = Relationship(back_populates="item")  # <--- Add this line
 
+    # Establish relationship to User model
+    user: Optional["DBUser"] = Relationship(back_populates="items")  # type: ignore
+    requests: List["Request"] = Relationship(back_populates="item")  # This creates a back-reference to requests
+
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
     updated_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
 
