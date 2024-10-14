@@ -22,7 +22,6 @@ class Request(RequestBase, table=True):
 
 # For schemas
 class RequestCreate(SQLModel):
-    id_sent: int  # ID of the user sending the request
     id_receive: int  # ID of the item owner
     id_item: int  # ID of the item
     message: Optional[str] = None  # Initial message
@@ -66,3 +65,4 @@ class RequestDetailRead(SQLModel):
     sender: UserDetail
     receiver: UserDetail
     item: ItemDetail
+

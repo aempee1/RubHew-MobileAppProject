@@ -8,7 +8,6 @@ from .. import models, deps  # Assuming models.py contains the Request model and
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
-# Create a new request
 @router.post("/", response_model=models.RequestRead, status_code=status.HTTP_201_CREATED)
 async def create_request(
     request_data: models.RequestCreate,
@@ -26,8 +25,8 @@ async def create_request(
 
     # Create the request
     new_request = models.Request(
-        id_sent=current_user.id,
-        id_receive=item.id_user,
+        id_sent=current_user.id,  # Automatically use the current user's ID
+        id_receive=item.id_user,   # The item's owner's ID
         id_item=request_data.id_item,
         message=request_data.message,
         create_time=datetime.utcnow(),
@@ -39,6 +38,7 @@ async def create_request(
     await session.refresh(new_request)
 
     return new_request
+
 
 
 @router.get("/my-requests", response_model=List[models.RequestDetailRead])
