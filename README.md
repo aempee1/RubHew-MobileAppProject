@@ -104,39 +104,74 @@ To set up a Jenkins pipeline for this project, follow these steps:
 
    ```groovy
    pipeline {
-       agent any
+    agent {
+        docker {
+            image 'python:3.12' // Specify the Docker image to use
+            args '-v /var/run/docker.sock:/var/run/docker.sock' // Allow Docker commands within the container
+        }
+    }
 
-       stages {
-           stage('Checkout') {
-               steps {
-                   git 'https://github.com/aempee1/RubHew-MobileAppProject.git'  // Replace with your repository URL
-               }
-           }
-           stage('Setup Environment') {
-               steps {
-                   sh 'python -m venv venv'
-                   sh 'source venv/bin/activate && pip install poetry'
-                   sh 'source venv/bin/activate && poetry install'
-               }
-           }
-           stage('Run Tests') {
-               steps {
-                   sh 'source venv/bin/activate && pytest'
-               }
-           }
-           stage('Deploy') {
-               steps {
-                   // Add your deployment steps here
-               }
-           }
-       }
-
-       post {
-           always {
-               // Clean up or send notifications if needed
-           }
-       }
-   }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Using git clone to fetch the repository
+                sh 'rm -rf RubHew-MobileAppProject' // Clean up any previous clones
+                sh 'git clone https://github.com/aempee1/RubHew-MobileAppProject.git'
+            }
+        }
+        
+        stage('Setup Python Environment') {
+            steps {
+                dir('RubHew-MobileAppProject') {
+                    sh '''
+                        python -m venv venv
+                        . venv/bin/activate
+                        pip install poetry
+                        poetry install
+                    '''
+                }
+            }
+        } 
+        
+        stage('Create Env file') {
+            steps {
+                dir('RubHew-MobileAppProject') {
+                    sh '''
+                        echo "SQLDB_URL=sqlite+aiosqlite:///./test-data/test-sqlalchemy.db" > .testing.env
+                        echo "Server_URL=http://localhost:8000" >> .testing.env
+                    '''
+                }
+            }
+        }
+        
+        stage('Test SonarScanner') {
+            steps {
+                dir('RubHew-MobileAppProject') {
+                    sh '''
+                        export PATH=/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/var/jenkins_home/sonar-scanner-6.2.1.4610-linux-x64/bin
+                        sonar-scanner \
+                          -Dsonar.projectKey=test_fastapi \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.token=sqp_c24993b73bf2bf7dbcd29b329be407b1025e2ba2
+                    '''
+                }
+            }
+        }
+        
+        stage('PyTest') {
+            steps {
+                dir('RubHew-MobileAppProject') {
+                    sh '''
+                        . venv/bin/activate
+                        export $(cat .testing.env | xargs)
+                        poetry run pytest -v
+                    '''
+                }
+            }
+        }
+    }
+    }
    ```
 
 3. **Save and Build the Pipeline:**
