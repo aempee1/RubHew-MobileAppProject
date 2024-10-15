@@ -89,9 +89,14 @@ To run the FastAPI application, use one of the following methods:
 To run tests for your FastAPI application, ensure your virtual environment is activated and run:
 
 ```bash
-pytest
+poetry run pytest -v
 ```
+Or use scripts to run test:
 
+```bash
+./scripts/run-test or ./scripts/run-test (windows)
+```
+ 
 ## Jenkins Pipeline
 
 To set up a Jenkins pipeline for this project, follow these steps:
